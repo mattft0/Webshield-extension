@@ -2,21 +2,65 @@
 let blockedSites = [];
 let activePopups = new Set();
 let fullBlocklist = [];
+const BLOCKLIST_URL = 'https://raw.githubusercontent.com/mattft0/WebShield-blocklist/main/blocklist.json';
+const UPDATE_INTERVAL = 24 * 60; // 24 heures en minutes
 
-// Load full blocklist from JSON
+// Load full blocklist from GitHub
 async function loadFullBlocklist() {
     try {
-        const response = await fetch(chrome.runtime.getURL('data/full_blocklist.json'));
-        if (!response.ok) throw new Error('Failed to load full_blocklist.json');
+        // Try to load from GitHub
+        const response = await fetch(BLOCKLIST_URL);
+        if (!response.ok) {
+            throw new Error('Failed to load blocklist from GitHub');
+        }
         const data = await response.json();
         fullBlocklist = data.domains;
-        chrome.storage.local.set({ blocklist: data.domains });
-        console.log(`Loaded ${data.total_domains} domains from full blocklist`);
+
+        // Cache the blocklist locally
+        chrome.storage.local.set({
+            blocklist: data.domains,
+            lastUpdate: data.last_updated
+        });
+
+        console.log(`Loaded ${data.total_domains} domains from GitHub blocklist`);
         loadCustomBlocklist();
     } catch (err) {
-        console.error('Error loading full blocklist:', err);
+        console.error('Error loading blocklist from GitHub:', err);
+        // Try to load from cache
+        chrome.storage.local.get(['blocklist', 'lastUpdate'], (result) => {
+            if (result.blocklist) {
+                fullBlocklist = result.blocklist;
+                console.log('Loaded blocklist from cache');
+                loadCustomBlocklist();
+            } else {
+                // Fallback to local file if cache is empty
+                fetch(chrome.runtime.getURL('data/full_blocklist.json'))
+                    .then(response => response.json())
+                    .then(data => {
+                        fullBlocklist = data.domains;
+                        chrome.storage.local.set({
+                            blocklist: data.domains,
+                            lastUpdate: new Date().toISOString()
+                        });
+                        console.log('Loaded blocklist from local file');
+                        loadCustomBlocklist();
+                    })
+                    .catch(error => console.error('Error loading local blocklist:', error));
+            }
+        });
     }
 }
+
+// Setup periodic updates
+chrome.alarms.create('updateBlocklist', {
+    periodInMinutes: UPDATE_INTERVAL
+});
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+    if (alarm.name === 'updateBlocklist') {
+        loadFullBlocklist();
+    }
+});
 
 // Domain validation improvement
 function isValidDomain(domain) {

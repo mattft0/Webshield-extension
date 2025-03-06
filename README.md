@@ -38,7 +38,7 @@ A powerful Chrome extension that protects your browsing by blocking malicious an
 ### Setup
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/WebShield-extension.git
+git clone https://github.com/mattft0/WebShield-extension.git
 cd WebShield-extension
 ```
 
@@ -75,7 +75,7 @@ WebShield-extension/
 
 ## Related Projects
 
-- [WebShield-blocklist](https://github.com/yourusername/WebShield-blocklist) - The main blocklist repository
+- [WebShield-blocklist](https://github.com/mattft0/WebShield-blocklist) - The main blocklist repository
 
 ## License
 
