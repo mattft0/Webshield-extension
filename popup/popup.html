@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WebShield</title>
+    <link rel="stylesheet" href="popup.css">
+    <style>
+        .config-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #0d6efd;
+            text-decoration: none;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .config-link:hover {
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="blocked-view" style="display: none;">
+        <h1>Site Blocked</h1>
+        <p>This site has been blocked by WebShield for your security.</p>
+        <p id="blocked-url"></p>
+        <button id="back-to-main">Back to WebShield</button>
+    </div>
+
+    <div id="main-view">
+        <h1>WebShield</h1>
+        <p>Blocked domains: <span id="blocked-count">0</span></p>
+        <button id="add-domain">Add domain</button>
+        <h2>Block history</h2>
+        <ul id="blocked-list"></ul>
+        <a href="../config.html" target="_blank" class="config-link">Open Configuration</a>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
